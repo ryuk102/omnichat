@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import NewDM from "./NEWDM";
+import NewDM from "./NewDM";
 import ProfileInfo from "./ProfileInfo";
 import { apiClient } from "@/lib/api-client";
 import { GET_DM_CONTACTS_ROUTES, GET_USER_CHANNELS_ROUTE } from "@/utils/constants";
@@ -8,7 +8,7 @@ import ContactList from "@/components/contactList";
 import CreateChannel from "./CreateChannel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-const ContactsContainer = () => {
+const ContactsContainer = () => {  
   
   const {setDirectMessagesContacts,directMessagesContacts,channels,setChannels}=useAppStore();
 
