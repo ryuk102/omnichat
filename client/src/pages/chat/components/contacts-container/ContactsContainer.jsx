@@ -4,7 +4,7 @@ import ProfileInfo from "./ProfileInfo";
 import { apiClient } from "@/lib/api-client";
 import { GET_DM_CONTACTS_ROUTES, GET_USER_CHANNELS_ROUTE } from "@/utils/constants";
 import { useAppStore } from "@/store";
-import ContactList from "@/components/contactList";
+import ContactList from "@/components/ContactList";
 import CreateChannel from "./CreateChannel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
