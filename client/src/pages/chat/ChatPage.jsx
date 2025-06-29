@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ContactsContainer from "./components/contacts-container/ContactsContainer";
-import EmptyChatContainer from "./components/emptyChatContainer";
+import EmptyChatContainer from "./components/EmptyChatContainer";
 import ChatContainer from "./components/chat-Container/ChatContainer";
 
 
