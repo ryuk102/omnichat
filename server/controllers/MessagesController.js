@@ -1,5 +1,6 @@
 import Message from "../models/MessageModel.js";
 import {mkdirSync, renameSync} from "fs"
+import { decryptMessage } from "../utils/crypto.js";
 
 export const getMessages = async (req,res,next)=>{
     try{
@@ -17,8 +18,14 @@ export const getMessages = async (req,res,next)=>{
             {sender:user2,recipient:user1},
            ]
          }    
-       ).sort({timeStamp:1})
-        return res.status(200).json({messages});
+       ).sort({timeStamp:1});
+
+       // Decrypt messages before sending
+    const decryptedMessages = messages.map((msg) => ({
+      ...msg.toObject(),
+      content: msg.content ? decryptMessage(msg.content) : undefined,
+    }));
+        return res.status(200).json({messages:decryptedMessages});
 
        }catch(error){
        console.log({error});

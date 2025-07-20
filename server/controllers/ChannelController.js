@@ -1,5 +1,6 @@
 import Channel from "../models/ChannelModel.js";
 import { User } from "../models/UserModel.js";
+import { decryptMessage } from "../utils/crypto.js";
 import mongoose from "mongoose";
 
 export const createChannel=async (req,res,next)=>{
@@ -57,9 +58,15 @@ export const createChannel=async (req,res,next)=>{
          });
          if(!channel){
             return res.status(404).send("Channel not found.");
-         }
-           const messages=channel.messages;
-            return res.status(201).json({messages});
+         };
+
+         //  Decrypt content of each message
+      const decryptedMessages = channel.messages.map((msg) => ({
+        ...msg.toObject(),
+        content: msg.content ? decryptMessage(msg.content) : undefined,
+      }));
+
+            return res.status(200).json({messages:decryptedMessages});
        }catch(error){
        console.log({error});
        return res.status(500).json({message:"Internal server error",error:error.message});

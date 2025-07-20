@@ -1,6 +1,7 @@
 import {Server as SocketIoServer} from "socket.io"
 import Message from "./models/MessageModel.js";
 import Channel from "./models/ChannelModel.js";
+import { encryptMessage,decryptMessage } from "./utils/crypto.js";
 
 const setupSocket=(server)=>{
    const io=new SocketIoServer(server,{
@@ -27,28 +28,44 @@ const setupSocket=(server)=>{
      const senderSocketId=userSocketMap.get(message.sender);
      const recipientSocketId=userSocketMap.get(message.recipient);
      
-     const createMessage=await(Message.create(message));
+     //messaage encryption
+      const encryptedContent = message.content
+    ? encryptMessage(message.content)
+    : undefined;
+
+    const createMessage = await Message.create({
+    ...message,
+    content: encryptedContent,
+     });
 
      const MessageData=await Message.findById(createMessage._id)
        .populate("sender","id email firstName lastName image color")
        .populate("recipient","id email firstName lastName image color")
-
+      
+       // Decrypt before emitting
+     const finalMessage = {
+       ...MessageData.toObject(),
+       content: encryptedContent ? decryptMessage(encryptedContent) : undefined,
+     };
        if(recipientSocketId){
-         io.to(recipientSocketId).emit("recieveMessage",MessageData);
+         io.to(recipientSocketId).emit("recieveMessage",finalMessage);
        }
        if(senderSocketId){
-         io.to(senderSocketId).emit("recieveMessage",MessageData);
+         io.to(senderSocketId).emit("recieveMessage",finalMessage);
        }
      } ;
 
 
     const sendChannelMessage=async (message) => {
       const{channelId,sender,content,messageType,fileUrl}=message;
+      
+      const encryptedContent = content ? encryptMessage(content) : undefined;
+
 
       const createMessage=await Message.create({
         sender,
         recipient:null,
-        content,
+        content:encryptedContent,
         messageType,
         timeStamp:new Date(),
         fileUrl,
@@ -66,7 +83,7 @@ const setupSocket=(server)=>{
         },
       });
       const channel=await Channel.findById(channelId).populate("members");
-      const finalData={...messageData._doc,channelId:channel._id};
+      const finalData={...messageData._doc,content: encryptedContent ? decryptMessage(encryptedContent) : undefined,channelId:channel._id};
 
       if(channel && channel.members){
         channel.members.forEach((member) => {
